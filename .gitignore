@@ -1,1 +1,3 @@
 .env
+redis-data/
+postgres-data/
