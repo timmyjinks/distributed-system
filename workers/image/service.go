@@ -93,11 +93,10 @@ func (s *Service) Get() ([]Image, error) {
 }
 
 func (s *Service) Append(id, name, content string) (string, error) {
-	res, err := s.sql.Query("INSERT INTO images (id, name, content) VALUES($1, $2, $3);", id, name, content)
+	_, err := s.sql.Exec("INSERT INTO images (id, name, content) VALUES($1, $2, $3);", id, name, content)
 	if err != nil {
 		return "", err
 	}
-	defer res.Close()
 
 	return id, nil
 }
@@ -105,16 +104,14 @@ func (s *Service) Append(id, name, content string) (string, error) {
 func (s *Service) Job() (string, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	createdAt := time.Now()
 
-	res, err := s.sql.Query("INSERT INTO jobs (id, type, created_at) VALUES($1, $2, $3);", id, "image", createdAt)
-	if err != nil {
+	if _, err := s.sql.Exec("INSERT INTO jobs (id, type, created_at) VALUES($1, $2, $3);", id, "image", createdAt); err != nil {
 		return "", err
 	}
-	defer res.Close()
 
 	return id.String(), nil
 }

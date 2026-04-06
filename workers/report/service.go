@@ -32,6 +32,7 @@ func (s *Service) Get() ([]Report, error) {
 	if err != nil {
 		return []Report{}, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var img Report
@@ -44,7 +45,7 @@ func (s *Service) Get() ([]Report, error) {
 }
 
 func (s *Service) Append(id, title, body string) (string, error) {
-	if _, err := s.sql.Query("INSERT INTO reports (id, title, body) VALUES($1, $2, $3) RETURNING id;", id, title, body); err != nil {
+	if _, err := s.sql.Exec("INSERT INTO reports (id, title, body) VALUES($1, $2, $3) RETURNING id;", id, title, body); err != nil {
 		return "", err
 	}
 
@@ -54,12 +55,12 @@ func (s *Service) Append(id, title, body string) (string, error) {
 func (s *Service) Job() (string, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	createdAt := time.Now()
 
-	if _, err := s.sql.Query("INSERT INTO jobs (id, type, created_at) VALUES($1, $2, $3);", id, "report", createdAt); err != nil {
+	if _, err := s.sql.Exec("INSERT INTO jobs (id, type, created_at) VALUES($1, $2, $3);", id, "report", createdAt); err != nil {
 		return "", err
 	}
 	return id.String(), nil
