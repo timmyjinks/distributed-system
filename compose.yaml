@@ -1,0 +1,74 @@
+services:
+  image:
+    build:
+      context: .
+      dockerfile: ./cmd/workers/image/Dockerfile
+    depends_on:
+      - db
+      - kafka
+    networks:
+      - distributed
+
+  report:
+    build:
+      context: .
+      dockerfile: ./cmd/workers/report/Dockerfile
+    depends_on:
+      - db
+    networks:
+      - distributed
+
+  task:
+    build:
+      context: .
+      dockerfile: ./cmd/workers/task/Dockerfile
+    depends_on:
+      - db
+    networks:
+      - distributed
+
+  kafka:
+    image: apache/kafka:latest
+    networks:
+      - distributed
+    environment:
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: 1
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+  redis:
+    image: redis:latest
+    networks:
+      - distributed
+    volumes:
+      - ./redis-data:/data
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./cmd/gateway/Dockerfile
+    networks:
+      - distributed
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres
+    networks:
+      - distributed
+    volumes:
+      - ./postgres-data:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+
+networks:
+  distributed:
