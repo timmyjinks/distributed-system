@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Store Store
+	Addr  string
 }
 
 type Store struct {
@@ -18,14 +19,21 @@ type Store struct {
 func Load() Config {
 	var cfg Config
 
+	LoadDefaults(&cfg)
+
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Println("[WARN] .env not found")
 	}
 
 	if err := env.Parse(&cfg); err != nil {
-		log.Fatal(err)
+		log.Println("[WARN] .env parse failed")
 	}
 
-	return Config{}
+	return cfg
+}
+
+func LoadDefaults(cfg *Config) {
+	cfg.Store.DB = "postgres"
+	cfg.Addr = ":8080"
 }

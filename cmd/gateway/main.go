@@ -10,7 +10,9 @@ import (
 )
 
 func main() {
-	_ = config.Load()
+	cfg := config.Load()
+
+	log.Println(cfg)
 
 	gate := gateway.NewGateway()
 	ratelimiter := ratelimiter.NewSlidingWindowRateLimiter(5, time.Second)
@@ -34,5 +36,5 @@ func main() {
 		svc: service,
 	}
 
-	app.Run(":8080")
+	app.Run(cfg.Addr)
 }
