@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
@@ -21,7 +22,9 @@ func main() {
 
 	kafka := queue.NewKafkaService("image")
 
-	svc := image.NewService(conn, kafka)
+	ctx, cancel := context.WithCancel(context.Background())
+	svc := image.NewService(ctx, conn, kafka)
+	defer cancel()
 
 	app := application{
 		svc: svc,

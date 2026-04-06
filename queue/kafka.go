@@ -21,7 +21,6 @@ func NewKafkaService(topic string) *KafkaService {
 		Brokers:     []string{"kafka:9092"},
 		Topic:       topic,
 		GroupID:     "image-group",
-		Partition:   0,
 		StartOffset: kafka.LastOffset,
 	},
 	)

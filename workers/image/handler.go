@@ -2,7 +2,6 @@ package image
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -30,14 +29,16 @@ func (h *Handler) Image(w http.ResponseWriter, r *http.Request) {
 
 	id := uuid.New()
 
-	fmt.Println("production", string(b))
-	if err := h.service.queue.Producer.Send(context.Background(), "image", queue.Message{
-		ID:      id.String(),
-		Type:    "image",
-		Payload: b,
-	}); err != nil {
-		return
-	}
+	go func() {
+		if err := h.service.queue.Producer.Send(context.Background(), "image", queue.Message{
+			ID:      id.String(),
+			Type:    "image",
+			Payload: b,
+		}); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}()
 
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte(id.String()))

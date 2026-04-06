@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/timmyjinks/distributed-system/queue"
-	// "github.com/timmyjinks/distributed-system/utils"
+	"github.com/timmyjinks/distributed-system/utils"
 )
 
 type Service struct {
@@ -18,7 +18,7 @@ type Service struct {
 	queue *queue.KafkaService
 }
 
-func NewService(sql *sql.DB, q *queue.KafkaService) Service {
+func NewService(ctx context.Context, sql *sql.DB, q *queue.KafkaService) Service {
 	service := Service{
 		sql:   sql,
 		queue: q,
@@ -26,29 +26,38 @@ func NewService(sql *sql.DB, q *queue.KafkaService) Service {
 
 	go func() {
 		for {
-			msg, err := q.Consumer.Read(context.Background())
-			if err != nil {
-				log.Println("[WARN] Consumer read Bad data")
-				continue
-			}
-			fmt.Println("consumed", msg)
-			var payload Image
-			if err := json.Unmarshal(msg.Payload, &payload); err != nil {
-				log.Println("[WARN] Bad data")
-				continue
-			}
+			select {
+			case <-ctx.Done():
+				log.Println("[INFO] image worker shutting down")
+				return
+			default:
+				msg, err := q.Consumer.Read(context.Background())
+				if err != nil {
+					log.Println("[WARN] Consumer read Bad data")
+					continue
+				}
+				fmt.Println("consumed", msg)
 
-			// utils.SimulateLargeTask(time.Second * 10)
+				var payload Image
+				if err := json.Unmarshal(msg.Payload, &payload); err != nil {
+					log.Println("[WARN] Bad data")
+					continue
+				}
 
-			id, err := service.Job()
-			if err != nil {
-				log.Println("[WARN] job failed")
-				continue
-			}
+				go func() {
+					utils.SimulateLargeTask(time.Second * 10)
 
-			if _, err := service.Append(id, payload.Name, payload.Content); err != nil {
-				log.Println("[WARN] Append failed")
-				continue
+					id, err := service.Job()
+					if err != nil {
+						log.Println("[WARN] job failed")
+						return
+					}
+
+					if _, err := service.Append(id, payload.Name, payload.Content); err != nil {
+						log.Println("[WARN] Append failed")
+						return
+					}
+				}()
 			}
 		}
 	}()
