@@ -44,6 +44,23 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_LOG_DIRS: /var/lib/kafka/data
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - distributed
+
+  grafana:
+    image: grafana/grafana-enterprise
+    ports:
+      - "3000:3000"
+    networks:
+      - distributed
+
   redis:
     image: redis:latest
     networks:
@@ -74,3 +91,6 @@ services:
 
 networks:
   distributed:
+
+volumes:
+  prometheus_data:

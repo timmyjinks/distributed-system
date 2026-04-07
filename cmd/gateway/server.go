@@ -22,6 +22,7 @@ func (app *application) Run(addr string) {
 
 	handler := gateway.NewHandler(app.svc)
 
+	app.svc.Monitor.Start(mux)
 	mux.Handle("/image", handler.RateLimit(http.HandlerFunc(handler.Image)))
 	mux.Handle("/report", handler.RateLimit(http.HandlerFunc(handler.Report)))
 	mux.Handle("/task", handler.RateLimit(http.HandlerFunc(handler.Task)))

@@ -18,6 +18,7 @@ func NewHandler(svc Service) Handler {
 func (h *Handler) RateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if h.svc.RateLimiter.Allow() {
+			h.svc.Monitor.Inc()
 			next.ServeHTTP(w, r)
 		} else {
 			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
