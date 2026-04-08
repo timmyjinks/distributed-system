@@ -24,7 +24,7 @@ func NewRedisServcie(cli *redis.Client) *RedisService {
 }
 
 func (r *RedisService) SetUser(ctx context.Context, key string, t time.Time) {
-	r.cli.Set(ctx, key, t, time.Minute*2)
+	r.cli.Set(ctx, key, t, time.Hour*2)
 }
 
 func (r *RedisService) GetUser(ctx context.Context, key string) (time.Time, error) {
