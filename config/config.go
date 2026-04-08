@@ -3,17 +3,22 @@ package config
 import (
 	"log"
 
-	"github.com/caarlos0/env"
+	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Store Store
-	Addr  string
+	Store
+	EmailConfig Email
+	Addr        string
 }
 
 type Store struct {
 	DB string `env:"DB,required"`
+}
+
+type Email struct {
+	APIKey string `env:"EMAIL_API_KEY"`
 }
 
 func Load() Config {
