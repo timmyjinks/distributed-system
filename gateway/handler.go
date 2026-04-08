@@ -1,8 +1,11 @@
 package gateway
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 )
 
 type Handler struct {
@@ -21,6 +24,18 @@ func (h *Handler) RateLimit(next http.Handler) http.Handler {
 			h.svc.Monitor.Inc()
 			next.ServeHTTP(w, r)
 		} else {
+			t, err := h.svc.Cache.GetUser(context.Background(), "something")
+			if err != nil {
+				log.Println("no good")
+			}
+
+			empty := time.Time{}
+
+			if t == empty {
+				h.svc.Email.SendEmail("error panic too many requests")
+				h.svc.Cache.SetUser(context.Background(), "something", time.Now())
+			}
+
 			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 		}
 	})
