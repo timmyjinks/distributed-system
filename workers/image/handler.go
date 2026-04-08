@@ -41,5 +41,5 @@ func (h *Handler) Image(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte(id.String()))
+	w.Write([]byte(id.String() + "\n"))
 }
