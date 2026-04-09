@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: report
+  name: report-service
+  namespace: distributed-system
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: report
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: report
+  name: report
+  namespace: distributed-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: report
+  template:
+    metadata:
+      labels:
+        app: report
+    spec:
+      hostname: report
+      containers:
+        - name: report
+          image: timmijinks/ds-report
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 80

@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: task
+  name: task-service
+  namespace: distributed-system
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: task
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: task
+  name: task
+  namespace: distributed-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task
+  template:
+    metadata:
+      labels:
+        app: task
+    spec:
+      hostname: task
+      containers:
+        - name: task
+          image: timmijinks/ds-task
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 80
