@@ -2,6 +2,9 @@ package queue
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -12,21 +15,26 @@ type KafkaService struct {
 }
 
 func NewKafkaService(topic string) *KafkaService {
-	_, err := kafka.DialLeader(context.Background(), "tcp", "kafka:9092", topic, 0)
+	dialer := kafka.Dialer{
+		Timeout:   10 * time.Second,
+		DualStack: true,
+	}
+
+	_, err := dialer.DialLeader(context.Background(), "tcp", "kafka-service:9092", topic, 0)
 	if err != nil {
-		panic(err.Error())
+		log.Println("[WARN]" + err.Error())
 	}
 
 	c := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:     []string{"kafka:9092"},
+		Brokers:     []string{"kafka-service:9092"},
 		Topic:       topic,
-		GroupID:     "image-group",
+		GroupID:     fmt.Sprintf("%s-group", topic),
 		StartOffset: kafka.LastOffset,
 	},
 	)
 
 	p := &kafka.Writer{
-		Addr:  kafka.TCP("kafka:9092"),
+		Addr:  kafka.TCP("kafka-service:9092"),
 		Topic: topic,
 	}
 

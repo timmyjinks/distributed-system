@@ -17,7 +17,7 @@ func main() {
 	cfg := config.Load()
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     "redis-service:6379",
 		Password: "",
 		DB:       0,
 		Protocol: 2,
@@ -29,16 +29,16 @@ func main() {
 	monitor := monitoring.NewPrometheusService("gateway_total_requests", "Total amount of requests recieved by gateway api")
 	cache := cache.NewRedisServcie(rdb)
 
-	err := gate.AddHost("http://image:80", "/image")
+	err := gate.AddHost("http://image-service:80", "/image")
 	if err != nil {
 		log.Fatal()
 	}
 
-	if err := gate.AddHost("http://report:80", "/report"); err != nil {
+	if err := gate.AddHost("http://report-service:80", "/report"); err != nil {
 		log.Fatal()
 	}
 
-	if err := gate.AddHost("http://task:80", "/task"); err != nil {
+	if err := gate.AddHost("http://task-service:80", "/task"); err != nil {
 		log.Fatal()
 	}
 

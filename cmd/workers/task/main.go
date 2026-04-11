@@ -12,7 +12,7 @@ import (
 func main() {
 	_ = config.Load()
 
-	connStr := "host=db port=5432 user=postgres password=password sslmode=disable"
+	connStr := "host=db-service port=5432 user=postgres password=password sslmode=disable"
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)

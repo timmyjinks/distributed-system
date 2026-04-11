@@ -33,7 +33,7 @@ func NewService(ctx context.Context, sql *sql.DB, q *queue.KafkaService) Service
 			default:
 				msg, err := q.Consumer.Read(context.Background())
 				if err != nil {
-					log.Println("[WARN] Consumer read Bad data")
+					log.Println("[WARN]", err)
 					continue
 				}
 				fmt.Println("consumed", msg)

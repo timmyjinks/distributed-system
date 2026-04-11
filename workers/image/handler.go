@@ -3,6 +3,7 @@ package image
 import (
 	"context"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -35,6 +36,7 @@ func (h *Handler) Image(w http.ResponseWriter, r *http.Request) {
 			Type:    "image",
 			Payload: b,
 		}); err != nil {
+			log.Println("[WARN] producer: ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
