@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: loki
+  name: loki-service
+  namespace: distributed-system
+spec:
+  ports:
+    - port: 3100
+  selector:
+    app: loki
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: loki
+  name: loki
+  namespace: distributed-system
+spec:
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+      name: loki
+      namespace: distributed-system
+    spec:
+      containers:
+        - name: loki
+          image: grafana/loki
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 3100
