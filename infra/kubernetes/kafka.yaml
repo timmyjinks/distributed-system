@@ -29,7 +29,6 @@ spec:
         app: kafka
       namespace: distributed-system
     spec:
-      hostname: kafka
       containers:
         - env:
             - name: KAFKA_PROCESS_ROLES

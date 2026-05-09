@@ -27,12 +27,12 @@ spec:
     metadata:
       labels:
         app: image
+        namespace: distributed-system
     spec:
-      hostname: image
       containers:
         - name: image
-          image: timmijinks/ds-image
-          imagePullPolicy: IfNotPresent
+          image: timmijinks/ds-image:latest
+          imagePullPolicy: Always
           resources:
             requests:
               memory: "500Mi"

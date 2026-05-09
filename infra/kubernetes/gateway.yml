@@ -7,7 +7,9 @@ metadata:
   namespace: distributed-system
 spec:
   ports:
-    - port: 80
+    - name: http
+      port: 8080
+
   selector:
     app: gateway
 ---
@@ -38,4 +40,4 @@ spec:
               memory: "500Mi"
               cpu: "50m"
           ports:
-            - containerPort: 80
+            - containerPort: 8080
